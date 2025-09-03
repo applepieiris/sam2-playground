@@ -5,9 +5,10 @@ import colorsys
 from pytoshop import layers
 from pytoshop.enums import BlendMode
 from pytoshop.core import PsdFile
-
+from datetime import datetime
 from modules.constants import DEFAULT_COLOR, DEFAULT_PIXEL_SIZE
-
+import gradio as gr
+import os
 
 def decode_to_mask(seg: np.ndarray[np.bool_] | np.ndarray[np.uint8]) -> np.ndarray[np.uint8]:
     """Decode to uint8 mask from bool to deal with as images"""
@@ -15,6 +16,12 @@ def decode_to_mask(seg: np.ndarray[np.bool_] | np.ndarray[np.uint8]) -> np.ndarr
         return seg.astype(np.uint8) * 255
     else:
         return seg.astype(np.uint8)
+
+
+def invert_masks(masks: List[Dict]) -> List[Dict]:
+    """Invert the masks. Used for background masking"""
+    inverted = 1 - masks
+    return inverted
 
 
 def generate_random_color() -> Tuple[int, int, int]:
@@ -47,7 +54,6 @@ def create_mask_layers(
         List of RGBA images
     """
     layer_list = []
-
     sorted_masks = sorted(masks, key=lambda x: x['area'], reverse=True)
 
     for info in sorted_masks:
@@ -80,17 +86,23 @@ def create_mask_gallery(
     mask_array_list = []
     label_list = []
 
-    sorted_masks = sorted(masks, key=lambda x: x['area'], reverse=True)
+    # sorted_masks = sorted(masks, key=lambda x: x['area'], reverse=True)
 
-    for index, info in enumerate(sorted_masks):
+    for index, info in enumerate(masks):
         rle = info['segmentation']
         mask = decode_to_mask(rle)
 
         rgba_image = cv2.cvtColor(image, cv2.COLOR_RGB2RGBA)
         rgba_image[..., 3] = cv2.bitwise_and(rgba_image[..., 3], rgba_image[..., 3], mask=mask)
+        
+        score = info.get('score', None)
+        if score is not None:
+            label = f"Part {index} - Score: {score:.3f}"
+        else:
+            label = f"Part {index}"
 
         mask_array_list.append(rgba_image)
-        label_list.append(f'Part {index}')
+        label_list.append(label)
 
     return [[img, label] for img, label in zip(mask_array_list, label_list)]
 
@@ -211,6 +223,39 @@ def create_solid_color_mask_image(
     return final_result
 
 
+def create_alpha_mask_image(
+    image: np.ndarray,
+    masks: List[Dict],
+) -> np.ndarray:
+    """
+    Create an image with alpha masks.
+
+    Args:
+        image: Original image
+        masks: List of mask data
+
+    Returns:
+        Image with solid color masks
+    """
+    transparent, opaque = 0, 255
+    if image.shape[2] == 3:
+        image = np.dstack([image, np.full((image.shape[0], image.shape[1]), opaque, dtype=np.uint8)])
+
+    final_result = image.copy()
+
+    for info in masks:
+        rle = info['segmentation']
+        mask = decode_to_mask(rle)
+
+        final_result[:, :, 3] = np.where(
+            mask > 0,
+            transparent,
+            final_result[:, :, 3]
+        )
+
+    return final_result
+
+
 def insert_psd_layer(
     psd: PsdFile,
     image_data: np.ndarray,
@@ -290,3 +335,17 @@ def save_psd_with_masks(
     modes = [BlendMode.normal] * (len(mask_layers)+1)
     save_psd(image, original_layer+mask_layers, ['Original_Image']+names, modes, output_path)
 
+def save_selected_mask(evt: gr.SelectData, image, masks):
+    index = evt.index
+    selected_mask_info = masks[index]
+    mask = decode_to_mask(selected_mask_info["segmentation"])
+
+    binary_mask = (mask > 0).astype(np.uint8) * 255
+    
+    timestamp = datetime.now().strftime("%m%d%H%M%S")
+    mask_save_dir = "./outputs/masks"
+    os.makedirs(mask_save_dir, exist_ok=True)
+    save_path = os.path.join(mask_save_dir, f"result-{timestamp}_{index}.png")
+    cv2.imwrite(save_path, binary_mask)
+
+    print(f"Saved mask {index} to {save_path}")

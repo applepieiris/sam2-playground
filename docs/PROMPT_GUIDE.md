@@ -20,7 +20,7 @@ Then you can draw a box around the child's face and **emphasize that area** with
 
 ![comb](https://github.com/jhj0517/sam2-playground/blob/master/docs/prompt_with_box_and_point_combination.png)
 
-Remember that you can't use the box and point combination prompt in SAM-2. You can only use a single combination at a time.
+Remember that you can't use the multiple box and point combinations prompt in SAM-2. You can only use one combination at a time.
 
  ### Prompt with negative points
 You can also use **negative points** (red dots) to segment a more specific part. <br>
@@ -31,7 +31,7 @@ To segment only the face, place positive points (blue dots) on the face and a ne
 
 
 ### Known bugs in the Web UI
-In the "Pixelize Filter" tab, you should reset the prompt by pressing the eraser button on the image prompter whenever you change the frame index, as the previous prompt remains even after you've changed the frame index. <br>
+In the "Video Segmentation" tab, you should reset the prompt by pressing the eraser button on the image prompter whenever you change the frame index, as the previous prompt remains even after you've changed the frame index. <br>
 
 ![eraser](https://github.com/jhj0517/sam2-playground/blob/master/docs/eraser_button.png)
 

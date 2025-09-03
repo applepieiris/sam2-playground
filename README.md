@@ -1,5 +1,5 @@
 # sam2-playground
-Gradio based Playground Web UI using [facebook/segment-anything-2](https://github.com/facebookresearch/segment-anything-2) models.
+Gradio based playground web UI using [facebook/segment-anything-2](https://github.com/facebookresearch/segment-anything-2) models.
 
 ### Online Demos
 
@@ -7,21 +7,28 @@ Gradio based Playground Web UI using [facebook/segment-anything-2](https://githu
 [![huggingface](https://img.shields.io/badge/Hugging%20Face-%F0%9F%A4%97%20Spaces-orange?logo=huggingface&labelColor=FFFFE0)](https://huggingface.co/spaces/jhj0517/sam2-playground)
 
 ## Feature
-- Add filters to segment parts of a video with pixelated or solid color
+- Segment video for transparent background or pixelated object
 
 <table>
   <tr>
-    <td align="center"><strong>Pixelize the girl's face</strong></td>
+    <td align="center"><strong>Transparent background</strong></td>
   </tr>
   <tr>
     <td>
-      <video controls autoplay loop src="https://github.com/user-attachments/assets/c5758970-dc15-4bc8-a918-8d3e8e44a73a" muted="false"></video>
+      <video controls autoplay loop src="https://github.com/user-attachments/assets/23b7d8b0-8594-4def-b0dc-405bedd53c84" muted="false"></video>
+    </td>
+  </tr>
+    <tr>
+    <td align="center"><strong>Pixelate</strong></td>
+  </tr>
+  <tr>
+    <td>
+      <video controls autoplay loop src="https://github.com/user-attachments/assets/1749893b-cf90-4407-89d7-9aaf13234dcc" muted="false"></video>
     </td>
   </tr>
 </table>
 
-
-- Divide segmentation parts into layers and save them as PSD files.
+- Segment image to divide objects into layers and save them as PSD files.
 
 <table>
   <tr>
@@ -50,10 +57,10 @@ And for CUDA, if you're not using an Nvidia GPU and CUDA 12.4, edit the [require
 ### Option 1 : Running with Shell / Batch Scripts
 There's a set of shell / batch scripts for installation and running. 
 
-1. Download `sam2-playground.zip` with the file corresponding to your OS from [sam2-playground-portable.zip](https://github.com/jhj0517/sam2-playground/releases/tag/v1.0.0) and extract its contents. 
-2. Run `install.bat` or `install.sh` to install dependencies. (This will create a `venv` directory and install dependencies there.)
-3. Start WebUI with `start-webui.bat` or `start-webui.sh` 
-4. To update, run `update.bat` or `update.sh` 
+1. Download [`sam2-playground-portable.zip`](https://github.com/jhj0517/sam2-playground/releases/tag/v1.0.0) with the file corresponding to your OS and extract its contents. 
+2. Run `install.bat` or `install.sh` to install dependencies. (It will create a `venv` directory and install dependencies there.)
+3. Start WebUI with `start-webui.bat` or `start-webui.sh` (It will run `python app.py` after activating the `venv`)
+4. To update, run `update.bat` or `update.sh` (It will run `git pull origin master`)
 
 ### Option 2: Docker
 1. Clone the repository
